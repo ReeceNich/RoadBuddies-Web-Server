@@ -31,6 +31,11 @@ DATABASE_USER=username
 DATABASE_PASSWORD=password
 DATABASE_PORT=5432
 DATABASE_NAME=dbname
+FLASK_SECRET_KEY=secretkey
+
+Generate secret key by using:
+import secrets
+secrets.token_hex(16)
 
 
 ## Start flask server in production mode
