@@ -1,35 +1,28 @@
 # https://www.bacancytechnology.com/blog/flask-jwt-authentication
 
 from operator import truediv
-from flask import Flask, jsonify, make_response, request
+from flask import jsonify, make_response, request
 from werkzeug.security import generate_password_hash,check_password_hash
-from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import uuid
 import jwt
 import datetime
 import time
-from dotenv import load_dotenv
-import os
 import psycopg2
 import psycopg2.extras
+from app import app
+from config import Config
 
-load_dotenv()  # loads variables from .env file into environment
 
-app = Flask(__name__)
-
-# gets variables from environment
-app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY")
-
-host = os.environ.get("DATABASE_HOST")
-user = os.environ.get("DATABASE_USER")
-password = os.environ.get("DATABASE_PASSWORD")
-port = os.environ.get("DATABASE_PORT")
-dbname = os.environ.get("DATABASE_NAME")
+# host = os.environ.get("DATABASE_HOST")
+# user = os.environ.get("DATABASE_USER")
+# password = os.environ.get("DATABASE_PASSWORD")
+# port = os.environ.get("DATABASE_PORT")
+# dbname = os.environ.get("DATABASE_NAME")
 
 
 # connection = psycopg2.connect(url)
-connection = psycopg2.connect(host=host, database=dbname, user=user, password=password, port=port)
+connection = psycopg2.connect(host=Config.HOST, database=Config.DBNAME, user=Config.USER, password=Config.PASSWORD, port=Config.PORT)
 
 
 
@@ -47,7 +40,7 @@ def token_required(f):
         
         try:
             # TODO: WHEN TOKEN EXPIRES, USER SHOULD BE ASKED TO LOGIN AGAIN
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
             # TODO: CHANGE THIS QUERY TO POSTGRES
             # current_user = Users.query.filter_by(public_id=data['public_id']).first()
 
@@ -210,6 +203,3 @@ def get_latest_location(current_user):
 
 
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="80")
