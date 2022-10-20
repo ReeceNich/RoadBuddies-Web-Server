@@ -13,12 +13,11 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     # gets variables from environment
     # app.config['SECRET_KEY'] = Config.SECRET_KEY
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
 
     db.init_app(app)
     migrate.init_app(app, db)
-
 
     from app.routes import api_bp
     app.register_blueprint(api_bp, url_prefix="/api")
