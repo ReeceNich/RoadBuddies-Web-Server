@@ -2,6 +2,7 @@ from datetime import date, datetime
 from app import db
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # flask db init
 # flask db stamp head  # usually need to run after changing db models (e.g., adding tables). see https://stackoverflow.com/questions/17768940/target-database-is-not-up-to-date
@@ -22,6 +23,13 @@ class User(db.Model):
     # friends_first = db.relationship("Friend", backref="user_first_id", primaryjoin="User.id==Friend.user_first_id")
     # friends_second = db.relationship("Friend", backref="user_second_id", primaryjoin="User.id==Friend.user_second_id")
     journeys = db.relationship("Journey", backref="journeys")
+
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password, method='sha256')
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def __repr__(self):
         return "<User {}>".format(self.username)
