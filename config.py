@@ -26,5 +26,5 @@ class TestConfig(object):
 
 class TestProdConfig(object):
     SECRET_KEY = secrets.token_hex(16)
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") + "-Test"
+    SQLALCHEMY_DATABASE_URI = (os.environ.get("DATABASE_URL") or "postgres://ADD_URL") + "-Test"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
