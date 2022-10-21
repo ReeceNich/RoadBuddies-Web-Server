@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # flask db upgrade
 
 class User(db.Model):
-    id = db.Column(db.String(64), primary_key=True, unique=True, default=str(uuid.uuid4))
+    id = db.Column(db.String(64), primary_key=True, unique=True, default=str(uuid.uuid4()))
     # id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid.uuid4)
 
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
@@ -66,7 +66,7 @@ class LatestLocation(db.Model):
 
 
 class Journey(db.Model):
-    journey_id = db.Column(db.String(64), primary_key=True, unique=True, default=str(uuid.uuid4))
+    journey_id = db.Column(db.String(64), primary_key=True, unique=True, default=str(uuid.uuid4()))
     user_id = db.Column(db.String(64), db.ForeignKey("user.id", ondelete="RESTRICT"), primary_key=True)
     # journey_id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid.uuid4)
     # user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id", ondelete="RESTRICT"), primary_key=True)
@@ -82,7 +82,7 @@ class Journey(db.Model):
 
 class JourneyEvent(db.Model):
     journey_id = db.Column(db.String(64), db.ForeignKey("journey.journey_id", ondelete="RESTRICT"), primary_key=True)
-    event_id = db.Column(db.String(64), primary_key=True, default=str(uuid.uuid4))
+    event_id = db.Column(db.String(64), primary_key=True, default=str(uuid.uuid4()))
     # journey_id = db.Column(UUID(as_uuid=True), db.ForeignKey("journey.journey_id", ondelete="RESTRICT"), primary_key=True)
     # event_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
