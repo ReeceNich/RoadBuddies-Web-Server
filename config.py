@@ -22,3 +22,9 @@ class TestConfig(object):
     SECRET_KEY = secrets.token_hex(16)
     SQLALCHEMY_DATABASE_URI = "sqlite:///"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+class TestProdConfig(object):
+    SECRET_KEY = secrets.token_hex(16)
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") + "-Test"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

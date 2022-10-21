@@ -1,12 +1,11 @@
-import pytest
 from config import TestConfig
 from app import db
-from app.models import User
+# from app.models import User
+# from sqlalchemy import func
+
 
 def test_config(app):
-    assert TestConfig.SQLALCHEMY_DATABASE_URI == "sqlite:///"
-    assert app.config["SQLALCHEMY_DATABASE_URI"] == "sqlite:///"
-
+    assert app.config["SQLALCHEMY_DATABASE_URI"]
 
 
 def test_create_db(app):
@@ -14,6 +13,7 @@ def test_create_db(app):
     
     with app.app_context():
         db.create_all()
+        db.drop_all()
         
         keys = db.metadata.tables.keys()
 
@@ -21,20 +21,3 @@ def test_create_db(app):
 
         for i in list(keys):
             assert (i in TABLES) == True
-    
-
-def test_add_user(app):
-    with app.app_context():
-        u1 = User(username="User1", email="user1@example.com", name="User 1")
-        u1.set_password("u1")
-
-        db.session.add(u1)
-        db.session.commit()
-
-
-        f1 = User.query.filter_by(username="User1").first()
-
-        assert f1.username == "User1"
-        assert f1.email == "user1@example.com"
-        assert f1.name == "User 1"
-        assert f1.check_password("u1") == True
