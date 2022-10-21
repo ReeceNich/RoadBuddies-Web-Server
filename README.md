@@ -1,6 +1,7 @@
 # Driving-Behaviours-Web-Server
 Python Flask web server for a REST API endpoint to interact with database backend
 
+[![Python application](https://github.com/ReeceNich/Driving-Behaviours-Web-Server/actions/workflows/pytest.yml/badge.svg)](https://github.com/ReeceNich/Driving-Behaviours-Web-Server/actions/workflows/pytest.yml)
 
 # Preparing the Virtual Environment:
 python -m venv .venv
