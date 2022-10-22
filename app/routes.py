@@ -25,6 +25,7 @@ api_bp = Blueprint("api_bp", __name__)
 # connection = psycopg2.connect(url)
 # connection = psycopg2.connect(host=Config.HOST, database=Config.DBNAME, user=Config.USER, password=Config.PASSWORD, port=Config.PORT)
 
+# Allows for use of @token_required. Token is passed in the HTTP header, decoded, and made available to relevant route functions.
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -70,8 +71,7 @@ def signup_user():
     # db.session.add(new_user) 
     # db.session.commit()
 
-    new_user = User(id=str(uuid.uuid4()), username=data["username"], name=data["name"], email=data["email"])
-    new_user.set_password(data["password"])
+    
 
     # with connection:
     #     with connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cursor:
@@ -79,12 +79,15 @@ def signup_user():
     #             (str(uuid.uuid4()), data["username"], hashed_password, data["email"], data["name"]))
 
     try:
+        new_user = User(id=str(uuid.uuid4()), username=data["username"], name=data["name"], email=data["email"])
+        new_user.set_password(data["password"])
+
         db.session.add(new_user)
         db.session.commit()
 
         return jsonify({'message': 'registered successfully'})
     except:
-        return make_response('registration unsuccessful', 401)
+        return make_response('registration unsuccessful', 400)
 
 
 
@@ -184,7 +187,7 @@ def add_latest_location(current_user):
         return jsonify({'message': 'location updated successfully'})
     except Exception as e:
         print(e)
-        return make_response('could not update location',  401)
+        return make_response('could not update location',  400)
 
 
     # with connection:
@@ -220,7 +223,7 @@ def add_friend(current_user):
         return jsonify({'message': 'friend added successfully'})
 
     except:
-        return make_response('could not add friend',  401)
+        return make_response('could not add friend',  400)
 
 
 
