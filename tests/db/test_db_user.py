@@ -1,6 +1,7 @@
 from app import db
 from app.models import User
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 
 
 def test_add_user(app):
@@ -18,6 +19,29 @@ def test_add_user(app):
         assert f1.email == "user1@example.com"
         assert f1.name == "User 1"
         assert f1.check_password("u1") == True
+
+def test_add_user_same_details(app):
+    with app.app_context():
+        u1 = User(username="User1", email="user1@example.com", name="User 1")
+        u1.set_password("u1")
+
+        db.session.add(u1)
+        # db.session.commit()
+
+        u2 = User(username="User1", email="user1@example.com", name="User 1")
+        u2.set_password("u1")    
+        db.session.add(u2)    
+
+        try:
+            db.session.commit()
+
+            assert True == False
+
+        except IntegrityError as e:
+            # errorInfo = e.orig.args
+            db.session.rollback()
+            print(e)
+            assert True == False
 
 
 def test_delete_user(app):
