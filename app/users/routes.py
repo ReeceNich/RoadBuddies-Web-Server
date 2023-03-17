@@ -73,7 +73,7 @@ def signup_user():
         return make_response('registration unsuccessful', 400)
 
 
-@users_bp.route('/get/user_info', methods=['GET'])
+@users_bp.route('/', methods=['GET'])
 @token_required
 def get_user_info(current_user):
     
@@ -84,15 +84,18 @@ def get_user_info(current_user):
     #         user = cursor.fetchone()
     #         print("Get User Info Row: ", user)
 
-    user = User.query.filter_by(id=current_user).first()
-          
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "name": user.name,
-        "email": user.email,
-        "created": user.created
-    })
+    try:
+        user = User.query.filter_by(id=current_user).first()
+            
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "name": user.name,
+            "email": user.email,
+            "created": user.created
+        })
+    except:
+        return make_response('Could not get user information',  400)
 
 
 def get_id_from_username(username):
