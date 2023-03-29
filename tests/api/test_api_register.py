@@ -1,5 +1,5 @@
 def test_register(client):
-    response = client.post("/api/register", json={
+    response = client.post("/api/users/register", json={
         "username": "bob1",
         "password": "pass",
         "email": "bob1@example.com",
@@ -10,7 +10,7 @@ def test_register(client):
     assert response.json["message"] == "registered successfully"
 
 def test_unsuccessful_register(client):
-    response = client.post("/api/register", json={
+    response = client.post("/api/users/register", json={
         "username": "bob1"
     })
 
