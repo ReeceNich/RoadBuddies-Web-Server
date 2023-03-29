@@ -22,6 +22,9 @@ def create_app(config_class=Config):
     from app.users import users_bp
     app.register_blueprint(users_bp, url_prefix="/api/users")
 
+    from app.journey import journey_bp
+    app.register_blueprint(journey_bp, url_prefix="/api/journey")
+
     return app
 
 # TODO: MIGHT NOT NEED THIS IMPORT ANYMORE

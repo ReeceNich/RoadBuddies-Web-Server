@@ -35,3 +35,16 @@
 | `/users/login` | Gets the user access token | POST | Request Body:<br/>`{"username": <String>, "password": <String>}` | 200 |
 | `/users/register` | Create the user | POST | Request Body:<br/>`{"username": <String>, "password": <String>, "name": <String>, "email": <String>}` | 400:<br/>`{"invalid": ["username", "email"]}`<br/>*Note: Invalid array will contain parameter names which already exist in the database (e.g., already in use by another user)* | 200 - OK<br/>400 - Error: Could not create the user |
 
+## Journey
+
+- `/journey/` - *Token required in header*
+    - POST - creates a new journey and returns the ID.
+
+- `/journey/end` - *Token required in header*
+    - POST - ends the journey. JSON body contains journey_id.
+
+- `/journey/event/` - *Token required in header*
+    - POST - journey_id required in JSON body. Adds the current event. Returns the new event ID.
+
+- `/journey/report` - *Token required in header*
+    - GET - returns a report of the journey.

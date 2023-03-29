@@ -1,5 +1,6 @@
-from app import db, app
-from app.models import User, Friend, LatestLocation
+from app import db, create_app
+from app.models import User, Friend, LatestLocation, Journey, JourneyEvent
+app = create_app()
 
 # flask db init
 # flask db migrate -m "your changes"
@@ -48,11 +49,12 @@ def add_example_friends():
 
 with app.app_context():
 
+
     if(input("=== ARE YOU SURE YOU WANT TO RESET THE DATABASE? (y/n) ===").lower() == "y"):
         new_db()
-        add_example_users()
-        add_example_latest_locations()
-        add_example_friends()
+        # add_example_users()
+        # add_example_latest_locations()
+        # add_example_friends()
 
         print("=== RESET THE DATABASE ===")
 
