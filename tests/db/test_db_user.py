@@ -36,13 +36,13 @@ def test_add_user_same_details(app):
             db.session.commit()
 
             # TODO: Fix this test statement
-            assert True == True
+            assert True == False
 
         except IntegrityError as e:
             # errorInfo = e.orig.args
             db.session.rollback()
             print(e)
-            assert True == False
+            assert True == True
 
 
 def test_delete_user(app):
