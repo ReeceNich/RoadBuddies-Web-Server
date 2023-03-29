@@ -15,22 +15,59 @@ from app.routes import token_required
 
 
 # Creates a journey and returns the new journey ID.
-@journey_bp.route("/", methods=['POST'])
+@journey_bp.route("/", methods=['POST', 'GET'])
 @token_required
 def create_new_journey(current_user):
-    try:
-        new = Journey(user_id=current_user, time_started=datetime.datetime.utcnow())
+    if request.method == "POST":
+        # Create a new journey.
+        try:
+            new = Journey(user_id=current_user, time_started=datetime.datetime.utcnow())
 
-        db.session.add(new)
-        db.session.commit()
+            db.session.add(new)
+            db.session.commit()
+            
+            return jsonify({"journey_id": new.journey_id,
+                            "user_id": new.user_id,
+                            "time_started": new.time_started})
         
-        return jsonify({"journey_id": new.journey_id,
-                        "user_id": new.user_id,
-                        "time_started": new.time_started})
-    
-    except Exception as e:
-        print(e)
-        return make_response('could not create new journey',  400)
+        except Exception as e:
+            print(e)
+            return make_response('could not create new journey',  400)
+    else:
+        # Return all journeys
+        try:
+            journeys = Journey.query.filter_by(user_id=current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
+            journeys_list = []
+            print(journeys)
+            for journey in journeys:
+                journey_dict = {
+                    "journey_id": journey.journey_id,
+                    "user_id": journey.user_id,
+                    "time_started": journey.time_started,
+                    "time_ended": journey.time_ended,
+                    "events": []
+                }
+                for event in journey.events:
+                    event_dict = {
+                        "journey_id": event.journey_id,
+                        "event_id": event.event_id,
+                        "latitude": event.latitude,
+                        "longitude": event.longitude,
+                        "time": event.time,
+                        "speed": event.speed,
+                        "is_speeding": event.is_speeding
+                    }
+                    journey_dict["events"].append(event_dict)
+                journeys_list.append(journey_dict)
+
+
+            print(journeys_list)
+            return jsonify(journeys_list)
+
+        except Exception as e:
+            print(e)
+            return make_response('could not return all journeys',  400)
+
 
 # Ends a journey and returns the new journey ID.
 @journey_bp.route("/end", methods=['POST'])
