@@ -21,24 +21,40 @@ def create_new_journey(current_user):
     if request.method == "POST":
         # Create a new journey.
         try:
-            new = Journey(user_id=current_user, time_started=datetime.datetime.utcnow())
+            journey = request.get_json()
+            # print("The POST data for Journey is:", journey)
+
+            new = Journey(journey_id=journey["journey_id"],
+                            user_id=current_user,
+                            time_started=journey["time_started"],
+                            time_ended=journey["time_ended"])
 
             db.session.add(new)
             db.session.commit()
-            
-            return jsonify({"journey_id": new.journey_id,
-                            "user_id": new.user_id,
-                            "time_started": new.time_started})
+
+            for event in journey["events"]:
+                new = JourneyEvent(journey_id=event["journey_id"],
+                                    event_id=event["event_id"],
+                                    latitude=event["latitude"],
+                                    longitude=event["longitude"],
+                                    time=event["time"],
+                                    speed=event["speed"],
+                                    is_speeding=bool(event["is_speeding"]))
+
+                db.session.add(new)
+                db.session.commit()
+
+            # db.session.commit()
+            return jsonify({})
         
         except Exception as e:
-            print(e)
+            print("Journey Error", e)
             return make_response('could not create new journey',  400)
     else:
         # Return all journeys
         try:
             journeys = Journey.query.filter_by(user_id=current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
             journeys_list = []
-            print(journeys)
             for journey in journeys:
                 journey_dict = {
                     "journey_id": journey.journey_id,
@@ -60,8 +76,6 @@ def create_new_journey(current_user):
                     journey_dict["events"].append(event_dict)
                 journeys_list.append(journey_dict)
 
-
-            print(journeys_list)
             return jsonify(journeys_list)
 
         except Exception as e:
