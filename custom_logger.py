@@ -5,5 +5,7 @@ class CustomLogger(Logger):
         atoms = self.atoms(resp, req, environ, request_time)
         if resp.status.startswith("200"):
             self.access_log.info(self.cfg.access_log_format % atoms)
-        else:
+        elif resp.status.startswith("404") or resp.status.startswith("5"):
             self.error_log.info(self.cfg.access_log_format % atoms)
+        else:
+            self.log.info(self.cfg.access_log_format % atoms)
