@@ -10,6 +10,13 @@ class CustomLogger(Logger):
 
 logconfig_dict = {
     "version": 1,
+    "formatters": {
+        "generic": {
+            "format": "%(asctime)s [%(process)d] [%(levelname)s] %(message)s",
+            "datefmt": "[%Y-%m-%d %H:%M:%S %z]",
+            "class": "logging.Formatter",
+        },
+    },
     "handlers": {
         "access_200_file": {
             "class": "logging.FileHandler",
@@ -31,5 +38,9 @@ logconfig_dict = {
             "handlers": ["access_other_file"],
             "level": "INFO",
         },
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"],
     },
 }
