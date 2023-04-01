@@ -10,22 +10,12 @@ source .venv/bin/activate   # different in windows
 pip install -r requirements.txt
 ```
 
-## Start flask server in development mode
+## Configure flask server (in development mode)
 Create a `.flaskenv` file in the root directory and add the following text:
 ```
 FLASK_APP=app
 FLASK_DEBUG=1
 ```
-
-You can now run the flask server in development mode using `flask run` in the command line.
-
-## Adding HTTPS for development server (optional)
-Note: Browsers will not like the certificate as it is self-signed.
-```
-pip install pyopenssl
-```
-
-Add `FLASK_RUN_CERT='adhoc'` to the `.flaskenv` file.
 
 ## Configuring SQLAlchemy for PostgreSQL in Python
 
@@ -41,12 +31,28 @@ import secrets
 secrets.token_hex(16)
 ```
 
+## Server is now configured
+You can now run the flask server in development mode using `flask run` in the command line.
+
+
+## Adding HTTPS for development server (optional)
+Note: Browsers will not like the certificate as it is self-signed.
+```
+pip install pyopenssl
+```
+
+Add `FLASK_RUN_CERT='adhoc'` to the `.flaskenv` file.
+
+
+
 
 # Start flask server in production mode
 Running the server in production mode is important for security and will remove the debugger which is used in the development server.
 ```
 pip install gunicorn
-gunicorn -w 2 -b 0.0.0.0:80 'app:app'
+gunicorn -w 2 -b 0.0.0.0:80 '<file/module name>:<flask app variable>'
+gunicorn -w 2 -b 0.0.0.0:80 'run:app'
+gunicorn -w 2 -b 0.0.0.0:80 --config gunicorn.conf.py 'run:app'
 ```
 
 # Testing
