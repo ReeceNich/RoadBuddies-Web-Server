@@ -8,7 +8,7 @@ class CustomLogger(Logger):
         else:
             self.error_log.info(self.cfg.access_log_format % atoms)
 
-logconfig_dict = {
+logconfig_dict = """{
     "version": 1,
     "handlers": {
         "access_200_file": {
@@ -32,4 +32,4 @@ logconfig_dict = {
             "level": "INFO",
         },
     },
-}
+}"""
