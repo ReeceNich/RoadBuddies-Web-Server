@@ -18,6 +18,10 @@ logconfig_dict = {
         },
     },
     "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "generic",
+        },
         "access_200_file": {
             "class": "logging.FileHandler",
             "filename": "access_200.log",
