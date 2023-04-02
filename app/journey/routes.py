@@ -12,6 +12,7 @@ from app.models import User, Journey, JourneyEvent
 from sqlalchemy import func
 from app.journey import journey_bp
 from app.routes import token_required
+from itertools import groupby
 
 
 # Creates a journey and returns the new journey ID.
@@ -136,3 +137,69 @@ def create_new_event(current_user):
     except Exception as e:
         print(e)
         return make_response('could not add new event',  400)
+    
+
+# Returns a journey report to the current journey
+@journey_bp.route("/report", methods=['GET'])
+@token_required
+def get_journey_report(current_user):
+    try:
+        data = request.get_json()
+        journey = Journey.query.filter_by(journey_id=data["journey_id"]).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).first()
+
+        report = {
+            "journey_id": journey.journey_id,
+            "total_distance": 0
+        }
+
+
+        for i in range(len(journey.events) - 1):
+            report["total_distance"] += haversine(journey.events[i].latitude, journey.events[i].longitude,
+                                                  journey.events[i+1].latitude, journey.events[i+1].longitude)
+
+        
+        # for i in range(len(journey.events)):
+        #     if journey.events[i].is_speeding:
+        #         report["speeding_count"] += 1
+        # else:
+        #     report["speeding_count_percentage"] = (report["speeding_count"] / len(journey.events)) * 100
+
+
+        # Count the number of different speeding violations.
+        speeding_percentage = 0
+        speeding_violations = 0
+        for key, group in groupby(journey.events, key=lambda x: x.is_speeding):
+            if key == True:
+                group_length = len(list(group))
+                if group_length >= 3:
+                    speeding_percentage += group_length
+                    speeding_violations += 1
+        
+        report["speeding_percentage"] = (speeding_percentage / len(journey.events)) * 100
+        report["speeding_separate_violations"] = speeding_violations
+        
+        
+        print("Report:", report)
+
+        return jsonify(report)
+
+    except Exception as e:
+        print(e)
+        return make_response('could not generate journey report',  400)
+    
+
+
+
+# Calculate the distance between two coordinates.
+
+from math import radians, sin, cos, sqrt, atan2
+
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371 # Earth's radius in km
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    d = R * c
+    return d * 1000
