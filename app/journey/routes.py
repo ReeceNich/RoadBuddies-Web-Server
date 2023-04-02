@@ -140,7 +140,7 @@ def create_new_event(current_user):
     
 
 # Returns a journey report to the current journey
-@journey_bp.route("/report", methods=['GET'])
+@journey_bp.route("/report", methods=['POST'])
 @token_required
 def get_journey_report(current_user):
     try:
