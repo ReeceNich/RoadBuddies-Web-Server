@@ -168,15 +168,26 @@ def get_journey_report(current_user):
         # Count the number of different speeding violations.
         speeding_percentage = 0
         speeding_violations = 0
+        speeding_locations = []
         for key, group in groupby(journey.events, key=lambda x: x.is_speeding):
             if key == True:
-                group_length = len(list(group))
-                if group_length >= 3:
+                events = list(group)
+                group_length = len(events)
+                if group_length >= 2:
                     speeding_percentage += group_length
                     speeding_violations += 1
+                    
+                    locs = []
+                    for event in events:
+                        locs.append({"latitude": event.latitude,
+                                     "longitude": event.longitude,
+                                     "speed": event.speed})
+                    
+                    speeding_locations.append(locs)
         
         report["speeding_percentage"] = (speeding_percentage / len(journey.events)) * 100
         report["speeding_separate_violations"] = speeding_violations
+        report["speeding_locations"] = speeding_locations
         
         
         print("Report:", report)
