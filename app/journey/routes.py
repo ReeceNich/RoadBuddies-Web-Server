@@ -145,7 +145,10 @@ def create_new_event(current_user):
 def get_journey_report(current_user):
     try:
         data = request.get_json()
-        journey = Journey.query.filter_by(journey_id=data["journey_id"]).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).first()
+        # journey = Journey.query.filter_by(journey_id=data["journey_id"]).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).first()
+        journey = Journey.query.filter_by(journey_id=data["journey_id"]).first()
+        journey_events = journey.journey_events.order_by(JourneyEvent.time.desc()).all()
+
 
         report = {
             "journey_id": journey.journey_id,
@@ -153,9 +156,9 @@ def get_journey_report(current_user):
         }
 
 
-        for i in range(len(journey.events) - 1):
-            report["total_distance"] += haversine(journey.events[i].latitude, journey.events[i].longitude,
-                                                  journey.events[i+1].latitude, journey.events[i+1].longitude)
+        for i in range(len(journey_events) - 1):
+            report["total_distance"] += haversine(journey_events[i].latitude, journey_events[i].longitude,
+                                                  journey_events[i+1].latitude, journey_events[i+1].longitude)
 
         
         # for i in range(len(journey.events)):
@@ -165,7 +168,7 @@ def get_journey_report(current_user):
         #     report["speeding_count_percentage"] = (report["speeding_count"] / len(journey.events)) * 100
 
 
-        metrics = events_metrics(journey.events)
+        metrics = events_metrics(journey_events)
         
         report["speeding_percentage"] = metrics["speeding_percentage"]
         report["speeding_separate_violations"] = metrics["speeding_separate_violations"]
@@ -186,8 +189,10 @@ def get_journey_report(current_user):
 @token_required
 def get_total_report(current_user):
     try:
+        # journeys = Journey.query.filter(Journey.user_id == current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
         journeys = Journey.query.filter(Journey.user_id == current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
-
+        
+        
         report = {
             "total_distance": 0,
             "speeding_percentage": 0
@@ -196,12 +201,14 @@ def get_total_report(current_user):
 
         # For each journey, get the metrics
         for i in range(len(journeys)):
-            metrics = events_metrics(journeys[i].events)
+            journey_events = journey.journey_events.order_by(JourneyEvent.time.desc()).all()
+
+            metrics = events_metrics(journey_events)
             report["speeding_percentage"] += metrics["speeding_percentage"]
 
             # For each event, count the distance
-            for j in range(len(journeys[i].events) - 1):
-                report["total_distance"] += haversine(journeys[i].events[j].latitude, journeys[i].events[j].longitude, journeys[i].events[j+1].latitude, journeys[i].events[j+1].longitude)
+            for j in range(len(journey_events) - 1):
+                report["total_distance"] += haversine(journey_events[j].latitude, journey_events[j].longitude, journey_events[j+1].latitude, journey_events[j+1].longitude)
 
         # Adjust the percentage given the number of journeys
         report["speeding_percentage"] = report["speeding_percentage"] / len(journeys)
