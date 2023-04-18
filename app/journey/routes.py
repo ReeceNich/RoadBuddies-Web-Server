@@ -147,7 +147,7 @@ def get_journey_report(current_user):
         data = request.get_json()
         # journey = Journey.query.filter_by(journey_id=data["journey_id"]).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).first()
         journey = Journey.query.filter_by(journey_id=data["journey_id"]).first()
-        journey_events = journey.events.order_by(JourneyEvent.time.desc()).all()
+        journey_events = sorted(journey.events, key=lambda x: x.time, reverse=True)
 
 
         report = {
@@ -192,7 +192,6 @@ def get_total_report(current_user):
         # journeys = Journey.query.filter(Journey.user_id == current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
         journeys = Journey.query.filter(Journey.user_id == current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
         
-        
         report = {
             "total_distance": 0,
             "speeding_percentage": 0
@@ -201,7 +200,9 @@ def get_total_report(current_user):
 
         # For each journey, get the metrics
         for i in range(len(journeys)):
-            journey_events = journeys.events.order_by(JourneyEvent.time.desc()).all()
+            # journey_events = journeys.events.order_by(JourneyEvent.time.desc()).all()
+            journey_events = sorted(journeys[i].events, key=lambda x: x.time, reverse=True)
+
 
             metrics = events_metrics(journey_events)
             report["speeding_percentage"] += metrics["speeding_percentage"]
