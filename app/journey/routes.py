@@ -165,29 +165,11 @@ def get_journey_report(current_user):
         #     report["speeding_count_percentage"] = (report["speeding_count"] / len(journey.events)) * 100
 
 
-        # Count the number of different speeding violations.
-        speeding_percentage = 0
-        speeding_violations = 0
-        speeding_locations = []
-        for key, group in groupby(journey.events, key=lambda x: x.is_speeding):
-            if key == True:
-                events = list(group)
-                group_length = len(events)
-                if group_length >= 2:
-                    speeding_percentage += group_length
-                    speeding_violations += 1
-                    
-                    locs = []
-                    for event in events:
-                        locs.append({"latitude": event.latitude,
-                                     "longitude": event.longitude,
-                                     "speed": event.speed})
-                    
-                    speeding_locations.append(locs)
+        metrics = events_metrics(journey.events)
         
-        report["speeding_percentage"] = (speeding_percentage / len(journey.events)) * 100
-        report["speeding_separate_violations"] = speeding_violations
-        report["speeding_locations"] = speeding_locations
+        report["speeding_percentage"] = metrics["speeding_percentage"]
+        report["speeding_separate_violations"] = metrics["speeding_separate_violations"]
+        report["speeding_locations"] = metrics["speeding_locations"]
         
         
         print("Report:", report)
@@ -197,6 +179,67 @@ def get_journey_report(current_user):
     except Exception as e:
         print(e)
         return make_response('could not generate journey report',  400)
+    
+
+# Returns a journey report of all journeys
+@journey_bp.route("/report/all", methods=['GET'])
+@token_required
+def get_total_report(current_user):
+    try:
+        journeys = Journey.query.filter(Journey.user_id == current_user).join(JourneyEvent).order_by(Journey.time_started.desc(), JourneyEvent.time.desc()).all()
+
+        report = {
+            "total_distance": 0,
+            "speeding_percentage": 0
+        }
+
+
+        # For each journey, get the metrics
+        for i in range(len(journeys)):
+            metrics = events_metrics(journeys[i].events)
+            report["speeding_percentage"] += metrics["speeding_percentage"]
+
+            # For each event, count the distance
+            for j in range(len(journeys[i].events) - 1):
+                report["total_distance"] += haversine(journeys[i].events[j].latitude, journeys[i].events[j].longitude, journeys[i].events[j+1].latitude, journeys[i].events[j+1].longitude)
+
+        # Adjust the percentage given the number of journeys
+        report["speeding_percentage"] = report["speeding_percentage"] / len(journeys)
+
+        return jsonify(report)
+
+    except Exception as e:
+        print(e)
+        return make_response('could not generate all journey report',  400)
+
+
+
+def events_metrics(journey_events):
+    # Count the number of different speeding violations.
+    speeding_percentage = 0
+    speeding_violations = 0
+    speeding_locations = []
+    for key, group in groupby(journey_events, key=lambda x: x.is_speeding):
+        if key == True:
+            events = list(group)
+            group_length = len(events)
+            if group_length >= 2:
+                speeding_percentage += group_length
+                speeding_violations += 1
+                
+                locs = []
+                for event in events:
+                    locs.append({"latitude": event.latitude,
+                                    "longitude": event.longitude,
+                                    "speed": event.speed})
+                
+                speeding_locations.append(locs)
+    
+    return {
+        "speeding_percentage": (speeding_percentage / len(journey_events)) * 100,
+        "speeding_separate_violations": speeding_violations,
+        "speeding_locations": speeding_locations
+    }
     
 
 
