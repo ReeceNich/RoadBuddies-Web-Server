@@ -110,58 +110,6 @@ def get_id_from_username(username):
     #         return user["public_id"]
 
 
-
-
-@users_bp.route("/add/latest_location", methods=['POST'])
-@token_required
-def add_latest_location(current_user):
-    data = request.get_json() 
-    print(data)
-
-    # TODO: get time from the user request, but make sure it is proper timestamp
-    try:    
-        current = LatestLocation.query.filter_by(user_id=current_user).first()
-
-
-        if current:
-            print("Yes")
-
-            # current.latitude = data.get("latitude", None)
-            current.latitude = data["latitude"] if "latitude" in data else None
-            current.longitude = data["longitude"] if "longitude" in data else None
-            current.speed = data["speed"] if "speed" in data else None
-            current.time = data["time"] if "time" in data else datetime.datetime.utcnow()
-
-            db.session.commit()
-        else:
-            print("No")
-
-            ll = LatestLocation(user_id=current_user, latitude=data.get("latitude", None), longitude=data.get("longitude", None), speed=data.get("speed", None), time=data.get("time", datetime.datetime.utcnow()))
-
-            db.session.add(ll)
-            db.session.commit()
- 
-        return jsonify({'message': 'location updated successfully'})
-    except Exception as e:
-        print(e)
-        return make_response('could not update location',  400)
-
-
-    # with connection:
-    #     with connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cursor:
-    #         cursor.execute("""
-    #         INSERT INTO public."LatestLocation" (public_id, latitude, longitude, time)
-    #         VALUES (%s, %s, %s, %s)
-    #         ON CONFLICT(public_id) DO UPDATE
-    #         SET latitude = excluded.latitude,
-    #             longitude = excluded.longitude,
-    #             time = excluded.time
-    #         """,
-    #             (current_user, data["latitude"], data["longitude"], data["time"])
-    #         )
-    #         return jsonify({'message': 'location updated successfully'})
-
-
 # TODO: Add error handling for existing friend.
 @users_bp.route("/add/friend", methods=['POST'])
 @token_required
@@ -194,33 +142,81 @@ def add_friend(current_user):
     #         )
 
 
+# @users_bp.route("/add/latest_location", methods=['POST'])
+# @token_required
+# def add_latest_location(current_user):
+#     data = request.get_json() 
+#     print(data)
+
+#     # TODO: get time from the user request, but make sure it is proper timestamp
+#     try:    
+#         current = LatestLocation.query.filter_by(user_id=current_user).first()
 
 
-# TODO: ADD GETTING ALL FRIENDS LATEST LOCATION
-@users_bp.route("/get/latest_location", methods=['GET'])
-@token_required
-def get_latest_location(current_user):
-    # SELECT * FROM public."LatestLocation" as loc, public."Friends"
-    # WHERE loc.public_id='47e1422d-4eeb-4fe7-afd8-fc83888e7e21'
+#         if current:
+#             print("Yes")
 
-    loc = LatestLocation.query.filter_by(user_id=current_user).first()
+#             # current.latitude = data.get("latitude", None)
+#             current.latitude = data["latitude"] if "latitude" in data else None
+#             current.longitude = data["longitude"] if "longitude" in data else None
+#             current.speed = data["speed"] if "speed" in data else None
+#             current.time = data["time"] if "time" in data else datetime.datetime.utcnow()
 
-    return jsonify({
-                "time_fetched": datetime.datetime.utcnow(),
-                "latitude": loc.latitude,
-                "longitude": loc.longitude,
-                "time": loc.time
-            })
-    
+#             db.session.commit()
+#         else:
+#             print("No")
+
+#             ll = LatestLocation(user_id=current_user, latitude=data.get("latitude", None), longitude=data.get("longitude", None), speed=data.get("speed", None), time=data.get("time", datetime.datetime.utcnow()))
+
+#             db.session.add(ll)
+#             db.session.commit()
+ 
+#         return jsonify({'message': 'location updated successfully'})
+#     except Exception as e:
+#         print(e)
+#         return make_response('could not update location',  400)
+
+
     # with connection:
     #     with connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cursor:
     #         cursor.execute("""
-    #             SELECT * FROM public."LatestLocation" WHERE public_id=%s
+    #         INSERT INTO public."LatestLocation" (public_id, latitude, longitude, time)
+    #         VALUES (%s, %s, %s, %s)
+    #         ON CONFLICT(public_id) DO UPDATE
+    #         SET latitude = excluded.latitude,
+    #             longitude = excluded.longitude,
+    #             time = excluded.time
     #         """,
-    #             (current_user,)
+    #             (current_user, data["latitude"], data["longitude"], data["time"])
     #         )
+    #         return jsonify({'message': 'location updated successfully'})
 
-    #         row = cursor.fetchone()
 
-    #         print(datetime.datetime.utcnow())
+# # TODO: ADD GETTING ALL FRIENDS LATEST LOCATION
+# @users_bp.route("/get/latest_location", methods=['GET'])
+# @token_required
+# def get_latest_location(current_user):
+#     # SELECT * FROM public."LatestLocation" as loc, public."Friends"
+#     # WHERE loc.public_id='47e1422d-4eeb-4fe7-afd8-fc83888e7e21'
+
+#     loc = LatestLocation.query.filter_by(user_id=current_user).first()
+
+#     return jsonify({
+#                 "time_fetched": datetime.datetime.utcnow(),
+#                 "latitude": loc.latitude,
+#                 "longitude": loc.longitude,
+#                 "time": loc.time
+#             })
+    
+#     # with connection:
+#     #     with connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cursor:
+#     #         cursor.execute("""
+#     #             SELECT * FROM public."LatestLocation" WHERE public_id=%s
+#     #         """,
+#     #             (current_user,)
+#     #         )
+
+#     #         row = cursor.fetchone()
+
+#     #         print(datetime.datetime.utcnow())
             

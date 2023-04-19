@@ -52,17 +52,17 @@ class Friend(db.Model):
         return "<Friend {} and {} requested @ {}>".format(self.user_first_id, self.user_second_id, self.friend_requested)
 
 
-class LatestLocation(db.Model):
-    user_id = db.Column(db.String(64), db.ForeignKey("user.id", ondelete="RESTRICT"), primary_key=True, unique=True)
-    # user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id", ondelete="RESTRICT"), primary_key=True, unique=True)
+# class LatestLocation(db.Model):
+#     user_id = db.Column(db.String(64), db.ForeignKey("user.id", ondelete="RESTRICT"), primary_key=True, unique=True)
+#     # user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id", ondelete="RESTRICT"), primary_key=True, unique=True)
 
-    latitude = db.Column(db.Float)
-    longitude = db.Column(db.Float)
-    time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    speed = db.Column(db.Float)
+#     latitude = db.Column(db.Float)
+#     longitude = db.Column(db.Float)
+#     time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+#     speed = db.Column(db.Float)
 
-    def __repr__(self):
-        return "<LatestLocation {} @ {}>".format(self.user_id, self.time)
+#     def __repr__(self):
+#         return "<LatestLocation {} @ {}>".format(self.user_id, self.time)
 
 
 class Journey(db.Model):
