@@ -173,9 +173,6 @@ def get_journey_report(current_user):
         report["speeding_percentage"] = metrics["speeding_percentage"]
         report["speeding_separate_violations"] = metrics["speeding_separate_violations"]
         report["speeding_locations"] = metrics["speeding_locations"]
-        
-        
-        print("Report:", report)
 
         return jsonify(report)
 
