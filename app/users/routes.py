@@ -9,10 +9,10 @@ import psycopg2.extras
 from config import Config
 from app import db
 from app.models import User, LatestLocation, Friend
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from app.users import users_bp
 from app.routes import token_required
-
+from app.journey.routes import total_report
 
 @users_bp.route('/login', methods=['POST']) 
 def login_user():
@@ -102,44 +102,119 @@ def get_id_from_username(username):
     user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
     return user.id
 
-    # with connection:
-    #     with connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cursor:
-    #         cursor.execute('SELECT public_id FROM public."User" WHERE username=%s', (username,))
+def get_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
 
-    #         user = cursor.fetchone()
-    #         return user["public_id"]
-
+    return {
+        "id": user.id,
+        "username": user.username,
+        "name": user.name,
+        "email": user.email,
+        "created": user.created
+    }
 
 # TODO: Add error handling for existing friend.
-@users_bp.route("/add/friend", methods=['POST'])
+# Pass the friend username through the body in JSON.
+@users_bp.route("/friend", methods=['POST', 'GET'])
 @token_required
 def add_friend(current_user):
+    if request.method == "POST":
+        # {"friend_username": "user123"}
+        data = request.get_json()
+
+        try:
+            friend_id = get_id_from_username(data["friend_username"])
+
+            print("Friend ID: ", friend_id)
+            relation = Friend(Friend.user_first_id == current_user, Friend.user_second_id == friend_id)
+            db.session.add(relation)
+            db.session.commit()
+            return jsonify({'message': 'friend requested successfully'})
+
+        except:
+            return make_response('could not add friend',  400)
+    else:
+        # Get all friends
+        try:
+            friends = []
+
+            relations = Friend.query.filter(Friend.user_first_id == current_user, Friend.is_friend == True).all()
+
+            for friend in relations:
+                info = get_user(friend.user_second_id)
+                report = total_report(friend.user_second_id)
+
+                friends.append({
+                    "friend_username": info["username"],
+                    "friend_name": info["name"],
+                    "friend_since": info["friend_since"],
+                    "speeding_percentage": report["speeding_percentage"]
+                })
+
+            relations = Friend.query.filter(Friend.user_second_id == current_user, Friend.is_friend == True).all()
+
+            for friend in relations:
+                info = get_user(friend.user_first_id)
+                report = total_report(friend.user_first_id)
+
+                friends.append({
+                    "friend_username": info["username"],
+                    "friend_name": info["name"],
+                    "friend_since": info["friend_since"],
+                    "speeding_percentage": report["speeding_percentage"]
+                })
+
+            sorted_friends = sorted(friends, key=lambda x: x["friend_name"])
+            return jsonify(sorted_friends)
+            
+        except:
+            return make_response('could not get all friend',  400)
+
+
+# Accept the friend request
+@users_bp.route("/friend/accept", methods=['POST'])
+@token_required
+def accept_friend_request(current_user):
+    # {"friend_username": "user123"}
     data = request.get_json()
 
+    try:
+        requester_id = get_id_from_username(data["friend_username"])
 
+        relation = Friend.query.filter(Friend.user_first_id == requester_id, Friend.user_second_id == current_user).first()
+
+        relation.is_friend = True
+        relation.friends_since = datetime.utcnow
+
+        db.session.add(relation)
+        db.session.commit()
+
+        return jsonify({'message': 'friend request accepted successfully'})
+
+    except:
+        return make_response('could not accept friend',  400)
+    
+# Remove the friend
+@users_bp.route("/friend/remove", methods=['POST'])
+@token_required
+def accept_friend_request(current_user):
+    # {"friend_username": "user123"}
+    data = request.get_json()
 
     try:
         friend_id = get_id_from_username(data["friend_username"])
 
-        print("Friend ID: ", friend_id)
-        rel = Friend(user_first_id=current_user, user_second_id=friend_id)
-        db.session.add(rel)
+        relation = Friend.query.filter(Friend.user_first_id == current_user, Friend.user_second_id == friend_id).first()
+        if relation is None:
+            relation = Friend.query.filter(Friend.user_first_id == friend_id, Friend.user_second_id == current_user).first()
+
+        db.session.delete(relation)
         db.session.commit()
-        return jsonify({'message': 'friend added successfully'})
+
+        return jsonify({'message': 'friend removed successfully'})
 
     except:
-        return make_response('could not add friend',  400)
-
-
-
-    # with connection:
-    #     with connection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cursor:
-    #         cursor.execute("""
-    #         INSERT INTO public."Friends" (public_id, friend_public_id, friend_since)
-    #         VALUES (%s, %s, %s)
-    #         """,
-    #             (current_user, friend_public_id, int(time.time()))
-    #         )
+        return make_response('could not remove friend',  400)
 
 
 # @users_bp.route("/add/latest_location", methods=['POST'])
