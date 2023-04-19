@@ -123,9 +123,11 @@ def friend(current_user):
         data = request.get_json()
 
         try:
+            print("getting id")
             friend_id = get_id_from_username(data["friend_username"])
 
-            relation = Friend(Friend.user_first_id == current_user, Friend.user_second_id == friend_id)
+            print("creating friend")
+            relation = Friend(user_first_id = current_user, user_second_id = friend_id)
             db.session.add(relation)
             db.session.commit()
             return jsonify({'message': 'friend requested successfully'})
@@ -232,7 +234,7 @@ def get_pending_friends(current_user):
             friends.append({
                 "friend_username": info["username"],
                 "friend_name": info["name"],
-                "friend_requested": info["friend_requested"]
+                "friend_requested": friend.friend_requested
             })
 
         sorted_friends = sorted(friends, key=lambda x: x["friend_requested"], reverse=True)
