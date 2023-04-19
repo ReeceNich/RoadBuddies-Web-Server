@@ -20,7 +20,7 @@ class User(db.Model):
     created = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # uselist - can only have one latest location.
-    latest_location = db.relationship("LatestLocation", uselist=False, backref="user")
+    # latest_location = db.relationship("LatestLocation", uselist=False, backref="user")
     # friends_first = db.relationship("Friend", backref="user_first_id", primaryjoin="User.id==Friend.user_first_id")
     # friends_second = db.relationship("Friend", backref="user_second_id", primaryjoin="User.id==Friend.user_second_id")
     journeys = db.relationship("Journey", backref="journeys")
