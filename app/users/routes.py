@@ -117,7 +117,7 @@ def get_user(user_id):
 # Pass the friend username through the body in JSON.
 @users_bp.route("/friend", methods=['POST', 'GET'])
 @token_required
-def add_friend(current_user):
+def friend(current_user):
     if request.method == "POST":
         # {"friend_username": "user123"}
         data = request.get_json()
@@ -197,7 +197,7 @@ def accept_friend_request(current_user):
 # Remove the friend
 @users_bp.route("/friend/remove", methods=['POST'])
 @token_required
-def accept_friend_request(current_user):
+def remove_friend(current_user):
     # {"friend_username": "user123"}
     data = request.get_json()
 
