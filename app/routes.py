@@ -32,7 +32,7 @@ def token_required(f):
             token = request.headers['x-access-tokens']
 
         if not token:
-            return jsonify({'message': 'a valid token is missing'})
+            return make_response('a valid token is missing',  400)
         
         try:
             # TODO: WHEN TOKEN EXPIRES, USER SHOULD BE ASKED TO LOGIN AGAIN
@@ -52,7 +52,7 @@ def token_required(f):
             #         current_user = row
 
         except:
-            return jsonify({'message': 'token is invalid'})
+            return make_response('token is invalid',  400)
 
         return f(current_user, *args, **kwargs)
     return decorator
