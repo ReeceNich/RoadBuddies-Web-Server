@@ -181,11 +181,10 @@ def accept_friend_request(current_user):
 
     try:
         requester_id = get_id_from_username(data["friend_username"])
-
         relation = Friend.query.filter(Friend.user_first_id == requester_id, Friend.user_second_id == current_user).first()
 
         relation.is_friend = True
-        relation.friends_since = datetime.utcnow
+        relation.friend_since = datetime.datetime.utcnow()
 
         db.session.add(relation)
         db.session.commit()
