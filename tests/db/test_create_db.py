@@ -9,7 +9,7 @@ def test_config(app):
 
 
 def test_create_db(app):
-    TABLES = ["user", "friend", "latest_location", "journey", "journey_event"]
+    TABLES = ["user", "friend", "journey", "journey_event"]
     
     with app.app_context():
         db.create_all()

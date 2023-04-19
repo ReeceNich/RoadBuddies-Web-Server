@@ -8,7 +8,7 @@ import psycopg2
 import psycopg2.extras
 from config import Config
 from app import db
-from app.models import User, LatestLocation, Friend
+from app.models import User, Friend
 from sqlalchemy import func, or_
 from app.users import users_bp
 from app.routes import token_required

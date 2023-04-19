@@ -10,7 +10,7 @@ import psycopg2
 import psycopg2.extras
 from config import Config
 from app import db
-from app.models import User, LatestLocation, Friend
+from app.models import User, Friend
 from sqlalchemy import func
 
 # host = os.environ.get("DATABASE_HOST")

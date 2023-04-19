@@ -1,5 +1,5 @@
 from app import db, create_app
-from app.models import User, Friend, LatestLocation, Journey, JourneyEvent
+from app.models import User, Friend, Journey, JourneyEvent
 app = create_app()
 
 # flask db init
@@ -26,18 +26,18 @@ def add_example_users():
     print("Added example users")
 
 
-def add_example_latest_locations():
-    u1 = LatestLocation(user_id=User.query.filter_by(username="User1").first().id, latitude=-50, longitude=1)
-    u2 = LatestLocation(user_id=User.query.filter_by(username="User2").first().id, latitude=-51, longitude=2)
-    u3 = LatestLocation(user_id=User.query.filter_by(username="User3").first().id, latitude=-52, longitude=3)
+# def add_example_latest_locations():
+#     u1 = LatestLocation(user_id=User.query.filter_by(username="User1").first().id, latitude=-50, longitude=1)
+#     u2 = LatestLocation(user_id=User.query.filter_by(username="User2").first().id, latitude=-51, longitude=2)
+#     u3 = LatestLocation(user_id=User.query.filter_by(username="User3").first().id, latitude=-52, longitude=3)
 
-    # db.session.add([u1, u2, u3])
-    db.session.add(u1)
-    db.session.add(u2)
-    db.session.add(u3)
-    db.session.commit()
+#     # db.session.add([u1, u2, u3])
+#     db.session.add(u1)
+#     db.session.add(u2)
+#     db.session.add(u3)
+#     db.session.commit()
 
-    print("Added example latest locations")
+#     print("Added example latest locations")
 
 
 def add_example_friends():
