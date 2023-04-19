@@ -125,7 +125,6 @@ def friend(current_user):
         try:
             friend_id = get_id_from_username(data["friend_username"])
 
-            print("Friend ID: ", friend_id)
             relation = Friend(Friend.user_first_id == current_user, Friend.user_second_id == friend_id)
             db.session.add(relation)
             db.session.commit()
@@ -208,13 +207,40 @@ def remove_friend(current_user):
         if relation is None:
             relation = Friend.query.filter(Friend.user_first_id == friend_id, Friend.user_second_id == current_user).first()
 
-        db.session.delete(relation)
-        db.session.commit()
-
-        return jsonify({'message': 'friend removed successfully'})
+        if relation is not None:
+            db.session.delete(relation)
+            db.session.commit()
+            return jsonify({'message': 'friend removed successfully'})
+        else:
+            # handle case where no matching row was found
+            return make_response('could not remove friend',  400)
 
     except:
         return make_response('could not remove friend',  400)
+
+# Remove the friend
+@users_bp.route("/friend/pending", methods=['GET'])
+@token_required
+def get_pending_friends(current_user):
+    try:
+        relations = Friend.query.filter(Friend.user_second_id == current_user, Friend.is_friend == False).all()
+
+        friends = []
+        for friend in relations:
+            info = get_user(friend.user_first_id)
+
+            friends.append({
+                "friend_username": info["username"],
+                "friend_name": info["name"],
+                "friend_requested": info["friend_requested"]
+            })
+
+        sorted_friends = sorted(friends, key=lambda x: x["friend_requested"], reverse=True)
+        return jsonify(sorted_friends)
+
+    except:
+        return make_response('could not get pending friend requests',  400)
+
 
 
 # @users_bp.route("/add/latest_location", methods=['POST'])
