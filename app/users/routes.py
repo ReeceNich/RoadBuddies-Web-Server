@@ -123,10 +123,8 @@ def friend(current_user):
         data = request.get_json()
 
         try:
-            print("getting id")
             friend_id = get_id_from_username(data["friend_username"])
 
-            print("creating friend")
             relation = Friend(user_first_id = current_user, user_second_id = friend_id)
             db.session.add(relation)
             db.session.commit()
@@ -144,11 +142,10 @@ def friend(current_user):
             for friend in relations:
                 info = get_user(friend.user_second_id)
                 report = total_report(friend.user_second_id)
-
                 friends.append({
                     "friend_username": info["username"],
                     "friend_name": info["name"],
-                    "friend_since": info["friend_since"],
+                    "friend_since": friend.friend_since,
                     "speeding_percentage": report["speeding_percentage"]
                 })
 
@@ -161,7 +158,7 @@ def friend(current_user):
                 friends.append({
                     "friend_username": info["username"],
                     "friend_name": info["name"],
-                    "friend_since": info["friend_since"],
+                    "friend_since": friend.friend_since,
                     "speeding_percentage": report["speeding_percentage"]
                 })
 

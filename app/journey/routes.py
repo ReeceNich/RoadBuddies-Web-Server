@@ -217,7 +217,8 @@ def total_report(user_id):
             report["total_distance"] += haversine(journey_events[j].latitude, journey_events[j].longitude, journey_events[j+1].latitude, journey_events[j+1].longitude)
 
     # Adjust the percentage given the number of journeys
-    report["speeding_percentage"] = report["speeding_percentage"] / len(journeys)
+    if len(journeys) > 0:
+        report["speeding_percentage"] = report["speeding_percentage"] / len(journeys)
     return report
 
 
